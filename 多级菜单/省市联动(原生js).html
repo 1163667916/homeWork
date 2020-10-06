@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      .hide {
+        display: none;
+      }
+    </style>
+</head>
+<body>
+  <!-- 省 -->
+  <select id="province">
+    <option value="0">请选择</option>
+  </select>
+
+  <!-- 市 -->
+  <select id="city" class="hide">
+    <!-- <option value="0">请选择</option> -->
+  </select>
+
+  <!-- 县 -->
+  <select id="district" class="hide">
+    <!-- <option value="0">请选择</option> -->
+  </select>
+</body>
+<script src="js/axios.js"></script>
+<script>
+  const province = document.getElementById('province')
+  const city = document.getElementById('city')
+  const district = document.getElementById('district')
+
+  getProvinceData()
+  getCityData()
+  getDistrictData()
+
+  // 获取省份列表并赋值，然后遍历添加到页面上
+  async function getProvinceData () {
+    const { data: res } = await axios.get('./json/100000_province.json')
+    createEl(province, res.rows, false)
+  }
+
+  // 根据省份获取城市
+   function getCityData () {
+    province.onchange = async function () {
+      city.innerHTML = ''
+      district.innerHTML = ''
+      let adcode
+      Array.prototype.slice.call(this.children).some(item => {
+        if(item.selected) {
+          adcode = item.getAttribute('value')
+          return true
+        }
+      })
+      if (adcode !== '0') {
+        const { data: res } = await axios.get(`./json/${adcode}_city.json`)
+        createEl(city, res.rows, true)
+        city.style.display = 'inline'
+      } else {
+        city.style.display = 'none'
+      }
+    }
+  }
+
+  // 根据城市获取县
+  function getDistrictData () {
+    city.onchange = async function () {
+      district.innerHTML = ''
+      let adcode
+      Array.prototype.slice.call(this.children).some(item => {
+        if(item.selected) {
+          adcode = item.getAttribute('value')
+          return true
+        }
+      })
+      if (adcode !== '0') {
+        const { data: res } = await axios.get(`./json/441900_district.json`)
+        createEl(district, res.rows, true)
+        district.style.display = 'inline'
+      } else {
+        district.style.display = 'none'
+      }
+    }
+  }
+  
+  // 创建 option 标签的函数, id: 对应select的id, data: 数组形式的数据, defaultVal: 是否要默认的option标签,布尔值
+  function createEl (id, data, defaultVal) {
+    if(defaultVal) {
+      const option = document.createElement('option')
+      option.innerHTML = '请选择'
+      option.setAttribute('value', '0')
+      id.appendChild(option)
+    }
+    data.forEach(item => {
+      const option = document.createElement('option')
+      option.innerHTML = item.name
+      option.setAttribute('value', item.adcode)
+      id.appendChild(option) 
+    })
+  }
+
+</script>
+</html>

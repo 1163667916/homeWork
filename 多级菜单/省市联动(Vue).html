@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <!-- 省 -->
+    <select v-model="province" @change="getCity">
+      <option value="0">请选择</option>
+      <option v-for="(item) in provinceList" :key="item.adcode" :value="item.adcode">
+        {{item.name}}
+      </option>
+    </select>
+    <!-- 市/区 -->
+    <select v-model="city" v-if="cityList.length"  @change="getDistrict"> 
+      <option value="0">请选择</option>
+      <option :value="item.adcode" v-for="(item, index) in cityList" :key="index">
+        {{item.name}}
+      </option>
+    </select>
+    <!-- 县 -->
+    <select v-model="district" v-if="districtList.length">
+      <option value="0">请选择</option>
+      <option :value="item.adcode" v-for="(item, index) in districtList" :key="index">
+        {{item.name}}
+      </option>
+    </select>
+  </div>
+</body>
+<script src="js/vue.js"></script>
+<script src="js/axios.js"></script>
+<script>
+  new Vue({
+    el: '#app',
+    mounted () {
+      this.getProvince()
+    },
+    data: {
+      province: '0',
+      city: '0',
+      district: '0',
+      provinceList: [],
+      cityList: [],
+      districtList: []
+    },
+    methods: {
+      async getProvince () {
+        const { data: res } = await axios.get('./json/100000_province.json')
+        this.provinceList = res.rows
+      },
+      async getCity () {
+        this.cityList = this.districtList = ''
+        const { data:res } = await axios.get(`./json/${this.province}_city.json`)
+        this.cityList = res.rows
+        this.city = '0'
+      },
+      async getDistrict () {
+        const { data: res } = await axios.get('./json/441900_district.json')
+        this.districtList = res.rows
+        this.district = '0'
+      }
+    }
+  })
+</script>
+</html>

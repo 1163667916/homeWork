@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0;
+        }
+
+        .main {
+            width: 500px;
+            height: 300px;
+            margin: 50px 20px;
+        }
+
+        .box {
+            width: 500px;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            border: 2px solid black;
+        }
+
+        ul {
+            width: 3500px;
+            overflow: hidden;
+            position: absolute;
+            left: -500px;
+            top: 0;
+        }
+
+        li {
+            width: 500px;
+            height: 300px;
+            display: flex;
+            list-style: none;
+            float: left;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+        }
+
+        .one {
+            background: pink;
+        }
+
+        .two {
+            background: skyblue;
+        }
+
+        .three {
+            background: rgb(238, 69, 69);
+        }
+
+        .four {
+            background: rgb(78, 240, 57);
+        }
+
+        .five {
+            background: rgb(57, 160, 83);
+        }
+
+        .control span {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, .5);
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        #left {
+            left: 0;
+        }
+
+        #left::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-left: 3px solid white;
+            border-top: 3px solid white;
+            transform: rotate(-45deg) translateY(-50%);
+            top: 50%;
+            left: 50%;
+            margin-top: -3px;
+        }
+
+        #right {
+            right: 0;
+        }
+
+        #right::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-right: 3px solid white;
+            border-top: 3px solid white;
+            transform: rotate(45deg) translateY(-50%);
+            top: 50%;
+            right: 50%;
+            margin-top: -3px;
+        }
+
+        .pagination {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            text-align: center;
+        }
+
+        .pagination div {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            background: rgba(161, 161, 161, 0.5);
+            cursor: pointer;
+            margin: 0 5px;
+            border-radius: 50%;
+        }
+
+        .pagination .active {
+            background: rgb(122, 0, 122);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="box">
+            <ul id="swiper">
+                <li class="five">5</li>
+                <li class="one">1</li>
+                <li class="two">2</li>
+                <li class="three">3</li>
+                <li class="four">4</li>
+                <li class="five">5</li>
+                <li class="one">1</li>
+            </ul>
+            <div class="control">
+                <span id="left"></span>
+                <span id="right"></span>
+            </div>
+            <div class="pagination" id="pagination">
+                <div class="active"></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src="./js/jquery-1.12.4.js"></script>
+<script>
+    (() => {
+        const MOVE = 500
+        const len = $('#pagination').children().length
+        const $divs = $('#pagination').children()
+        let index = 0
+        let isComplete = false
+        let timeoutId
+        $('#right').click(() => {
+            clearTimeout(timeoutId)
+            nextPage(true)
+            autoplay()
+        })
+        $('#left').click(() => {
+            clearTimeout(timeoutId)
+            nextPage(false)
+            autoplay()
+        })
+        $divs.click(function () {
+            if (isComplete) return
+            const clickIndex = $(this).index()
+            nextPage(clickIndex)
+            autoplay()
+        })
+
+
+        autoplay()
+        function autoplay() {
+            timeoutId = setTimeout(() => {
+                nextPage(true)
+                autoplay()
+            }, 3000);
+        }
+
+
+        function nextPage(flag) {
+            if (isComplete) return
+            isComplete = true
+            let move
+            if (typeof flag === 'boolean') {
+                if (flag) {
+                    move = -MOVE
+                } else {
+                    move = MOVE
+                }
+            } else {
+                move = (index - flag) * MOVE
+            }
+
+
+            // 当前偏移量
+            let curOffset = $('#swiper').position().left
+            curOffset += move
+            $('#swiper').animate({
+                left: curOffset
+            }, 350, () => {
+                if (curOffset === (len + 1) * -MOVE) {
+                    $('#swiper').css("left", -MOVE)
+                } else if (curOffset === -0) {
+                    $('#swiper').css('left', (len) * -MOVE)
+                }
+                isComplete = false
+            })
+            point(flag)
+        }
+
+        function point(flag) {
+            let curindex
+            if (typeof flag === 'boolean') {
+                if (flag) {
+                    curindex = index + 1
+                    if (curindex === len) {
+                        curindex = 0
+                    }
+                } else {
+                    curindex = index - 1
+                    if (curindex === -1) {
+                        curindex = len - 1
+                    }
+                }
+            } else {
+                curindex = flag
+            }
+
+            $divs.eq(curindex).addClass('active')
+            $divs.eq(index).removeClass('active')
+            index = curindex
+        }
+    })()
+</script>

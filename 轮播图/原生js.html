@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      * {
+        padding: 0px;
+        margin: 0;
+      }
+      .box {
+        margin: 50px 20px;
+        width: 500px;
+        height: 300px;
+        position: relative;
+        border: 2px solid black;
+        overflow: hidden;
+      }
+      ul {
+        width: 3500px;
+        overflow: hidden;
+        position: absolute;
+        left: 0;
+        transform: translateX(-500px);
+      }
+      li {
+        width: 500px;
+        height: 300px;
+        display: flex;
+        list-style: none;
+        float: left;
+        justify-content: center;
+        align-items: center;
+        font-size: 50px;
+      }
+      .one {
+        background: pink;
+      }
+      .two {
+        background: skyblue;
+      }
+      .three {
+        background: rgb(238, 69, 69);
+      }
+      .four {
+        background: rgb(78, 240, 57);
+      }
+      .five {
+        background: rgb(57, 160, 83);
+      }
+      .control span {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background: rgba(0, 0, 0, .5);
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+      }
+      #left {
+        left: 0;
+      }
+      #left::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-left: 3px solid white;
+        border-top: 3px solid white;
+        transform: rotate(-45deg) translateY(-50%);
+        top: 50%;
+        left: 50%;
+        margin-top: -3px;
+      }
+      #right {
+        right: 0;
+      }
+      #right::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-right: 3px solid white;
+        border-top: 3px solid white;
+        transform: rotate(45deg) translateY(-50%);
+        top: 50%;
+        right: 50%;
+        margin-top: -3px;
+      }
+      .pagination {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        text-align: center;
+      }
+      .pagination div {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        background: rgba(161, 161, 161, 0.5);
+        cursor: pointer;
+        margin: 0 5px;
+        border-radius: 50%;
+      }
+      .pagination div.active {
+        background: rgb(122, 0, 122);
+      }
+    </style>
+</head>
+<body>
+  <div class="box">
+    <ul id="swiper">
+      <li class="five">5</li>
+      <li class="one">1</li>
+      <li class="two">2</li>
+      <li class="three">3</li>
+      <li class="four">4</li>
+      <li class="five">5</li>
+      <li class="one">1</li>
+    </ul>
+    <div class="control">
+      <span id="left"></span>
+      <span id="right"></span>
+    </div>
+    <div class="pagination" id="pagination">
+      <div class="active"></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+</body>
+<script>
+  const swiper = document.getElementById('swiper')
+  const left_control = document.getElementById('left')
+  const right_control = document.getElementById('right')
+  const paginationItem = document.getElementById('pagination').children
+  const len = swiper.children.length - 2
+  // 动画执行完毕标识
+  let isComplete = false
+  // 定时器id
+  let timeoutId 
+  // 初始化页码
+  let index = 0
+  // 最新页码
+  let curIndex
+  // 每次偏移的距离
+  const MOVE = 500
+  // 记录当前偏移量
+  let curOffset = -500
+  // 设置 swiper 的宽度
+  left_control.onclick = function () {
+    clearTimeout(timeoutId)
+    nextPage(false)
+    autoPlay()
+  }
+  right_control.onclick = function () {
+    clearTimeout(timeoutId)
+    nextPage(true)
+    autoPlay()
+  }
+
+  // autoPlay()
+  function autoPlay () {
+    timeoutId = setTimeout(() => {
+      nextPage(true)
+      autoPlay()
+    }, 2000)
+  }
+
+  function nextPage (flag) {
+    if (isComplete) return
+    isComplete = true
+    let go
+    let curIndex = 0
+    if (typeof flag === 'boolean') {
+      if (flag) {
+        // 向右
+        go = -MOVE
+        curIndex = index + 1
+      } else {
+        // 向左
+        go = MOVE
+        curIndex = index - 1
+      }
+    }
+    
+    curOffset += go
+    swiper.style.cssText = "transform: translateX(" + curOffset + "px);transition: .5s;"
+    
+    if (curOffset === -(len + 1) * 500) {
+      setTimeout(() => {
+        swiper.style.cssText = "transform: translateX(" + (-MOVE) + "px);"
+        curOffset = -500
+      }, 500)
+      index = len - 1
+      curIndex = 0
+    } else if (curOffset === 0) {
+      setTimeout(() => {
+        swiper.style.cssText = "transform: translateX(" + (-MOVE * len) + "px);"
+        curOffset = -MOVE * len
+      }, 500)
+      index = 0
+      curIndex = len - 1
+    }
+    paginationItem[index].className = ''
+    paginationItem[curIndex].className = 'active'
+    
+    index = curIndex
+    setTimeout(() => {
+      isComplete = false
+    }, 500)
+  }
+</script>
+</html>

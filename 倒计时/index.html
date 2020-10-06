@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      .box {
+        margin: 20px;
+      }
+      .box span {
+        display: block;
+        width: 120px;
+        height: 35px;
+        background: rgba(0, 0, 0, .5);
+        text-align: center;
+        line-height: 35px;
+        color: white;
+        cursor: pointer;
+      }
+    </style>
+</head>
+<body>
+  <div class="box">
+    <span id="getCode">获取验证码</span>
+  </div>
+</body>
+<script>
+  let id 
+  const span = document.getElementById('getCode')
+  span.onclick = function () {
+    if (id) return
+    let num = 60
+    this.innerHTML = num + "s"
+    id = setInterval(() => {
+      num--
+      if (num === 0) {
+        this.innerHTML = "重新获取"
+        clearInterval(id)
+        id = null
+        return
+      }
+      this.innerHTML = num + "s"
+    }, 1000)
+  }
+</script>
+</html>
